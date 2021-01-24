@@ -1,21 +1,13 @@
-import firebase from './firebase'
+import firebase from '../lib/firebase'
 import { User } from '../types/user'
 
 export class Auth {
   static async signInWithGithub(): Promise<User | null> {
-    const response = await firebase
+    const { user } = await firebase
       .auth()
       .signInWithPopup(new firebase.auth.GithubAuthProvider())
 
-    const { user } = response
-
-    if (user) {
-      return {
-        email: user.email,
-      }
-    }
-
-    return null
+    return user ? getUserFromFirebaseUser(user) : null
   }
 
   static async signOut(): Promise<void> {
@@ -24,15 +16,19 @@ export class Auth {
 
   static onAuthStateChange(callback: (value: User | null) => void) {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        callback({
-          email: user.email,
-        })
-      }
-
-      return null
+      callback(user ? getUserFromFirebaseUser(user) : null)
     })
 
     return () => unsubscribe()
+  }
+}
+
+function getUserFromFirebaseUser(user: firebase.User): User {
+  return {
+    email: user.email,
+    uid: user.uid,
+    displayName: user.displayName,
+    providerId: user.providerData[0]?.providerId ?? null,
+    photoUrl: user.photoURL,
   }
 }

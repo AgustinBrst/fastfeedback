@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Auth } from '../lib/auth'
+import { Auth } from '../services/auth'
 import { User } from '../types/user'
 
 type ContextValue = {
