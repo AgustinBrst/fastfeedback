@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Auth } from '../services/auth'
+import { Database } from '../services/database'
 import { User } from '../types/user'
 
 type ContextValue = {
@@ -23,7 +24,10 @@ export function AuthProvider({ children }: Props) {
   async function signInWithGithub() {
     setIsLoading(true)
     const user = await Auth.signInWithGithub()
-    setUser(user)
+    if (user) {
+      setUser(user)
+      Database.createUser(user)
+    }
     setIsLoading(false)
   }
 
